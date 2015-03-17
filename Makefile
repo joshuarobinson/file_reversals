@@ -1,13 +1,13 @@
 CC=g++
 FLAGS=-std=c++1y -g -Werror -Wall -Wextra -O3
 
-all:		reverse_c mmap_reverse buffered_reverse
+all:		fwrite_reverse mmap_reverse pwrite_reverse
 
-reverse_c:	reverse.c
-		gcc -std=c99 -Werror -Wall -O3 -o reverse_c reverse.c
+fwrite_reverse:	fwrite_reverse.cc
+		$(CC) $(FLAGS) -o fwrite_reverse fwrite_reverse.cc
 
-mmap_reverse:	mmap_reverse.c
-		gcc -std=c99 -Werror -Wall -O3 -o mmap_reverse mmap_reverse.c
+mmap_reverse:	mmap_reverse.cc
+		$(CC) $(FLAGS) -o mmap_reverse mmap_reverse.cc
 
-buffered_reverse:	buffered_reverse.cc
-		$(CC) $(FLAGS) -o buffered_reverse buffered_reverse.cc
+pwrite_reverse:	pwrite_reverse.cc
+		$(CC) $(FLAGS) -o pwrite_reverse pwrite_reverse.cc
