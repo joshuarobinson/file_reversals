@@ -2,7 +2,6 @@
 
 #include <fcntl.h>
 
-#include <stdio.h>
 #include <stdlib.h>
 
 #include <sys/mman.h>
@@ -10,22 +9,31 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <algorithm>
+#include <iostream>
+
 
 int main(int argc, char* argv[])
 {
     if (argc != 2) {
-        fprintf(stderr, "Error. Usage:\n\t%s [filename]\n", argv[0]);
+        std::cerr << "Error. Usage:\n\t" << argv[0] << " [filename]\n";
         return 1;
     }
     const char* filename = argv[1];
 
     int fd = open(filename, O_RDWR);
-    assert(fd != -1);
+    if (fd == -1) {
+        std::cerr << "Error. Unable to open file " << filename << "\n";
+        return 1;
+    }
 
     // Obtain file size.
     struct stat sb;
-    int res = fstat(fd, &sb);
-    assert(res != -1);
+    if (fstat(fd, &sb) == -1) {
+        std::cerr << "Error. Unable to stat filesize.\n";
+        return 1;
+    }
+
     int len = sb.st_size;
 
     // Mmap.
@@ -35,14 +43,7 @@ int main(int argc, char* argv[])
     char* begin_ptr = (char*)addr;
     char* end_ptr = begin_ptr + len;
 
-    // Reverse loop.
-    for (long i = 0; i < len / 2; ++i) {
-        char a = *(begin_ptr + i);
-        char b = *(end_ptr - i - 1);
-
-        *(begin_ptr + i) = b;
-        *(end_ptr - i - 1) = a;
-    }
+    std::reverse(begin_ptr, end_ptr);
 
     // Cleanup.
     munmap(addr, len);

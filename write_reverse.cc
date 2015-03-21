@@ -38,10 +38,12 @@ int main(int argc, char* argv[])
         size_t read_len = (offset + k_chunk_size < midpoint) ? k_chunk_size : midpoint - offset;
         auto back_offset = len - offset - read_len;
 
-        size_t res1 = pread(fd, buf1.data(), read_len, offset);
-        size_t res2 = pread(fd, buf2.data(), read_len, back_offset);
+        lseek(fd, offset, SEEK_SET);
+        ssize_t res1 = read(fd, buf1.data(), read_len);
+        lseek(fd, back_offset, SEEK_SET);
+        ssize_t res2 = read(fd, buf2.data(), read_len);
 
-        if (res1 != read_len || res2 != read_len) {
+        if (static_cast<size_t>(res1) != read_len || static_cast<size_t>(res2) != read_len) {
             std::cerr << "Error: file read error, offset = " << offset << "\n";
             return 3;
         }
@@ -50,10 +52,12 @@ int main(int argc, char* argv[])
         std::reverse(buf1.begin(), buf1.begin() + read_len);
         std::reverse(buf2.begin(), buf2.begin() + read_len);
 
-        res1 = pwrite(fd, buf2.data(), read_len, offset);
-        res2 = pwrite(fd, buf1.data(), read_len, back_offset);
+        lseek(fd, offset, SEEK_SET);
+        res1 = write(fd, buf2.data(), read_len);
+        lseek(fd, back_offset, SEEK_SET);
+        res2 = write(fd, buf1.data(), read_len);
 
-        if (res1 != read_len || res2 != read_len) {
+        if (static_cast<size_t>(res1) != read_len || static_cast<size_t>(res2) != read_len) {
             std::cerr << "Error: file write error, offset = " << offset << "\n";
             return 4;
         }
